@@ -1,5 +1,6 @@
 # 🏘️ HitungKos — Sistem Estimasi Tarif Sewa Kos di Madiun
 * **Naufal Adriananta Halim** — NIM `253307058`
+
 Platform web cerdas yang dikembangkan menggunakan framework **Django** serta integrasi **Machine Learning** guna membantu pengguna memperkirakan biaya sewa kamar kos per bulan di area **Madiun** berdasarkan kelengkapan fasilitas, dimensi ruangan, dan letak geografis.
 
 ---
@@ -86,7 +87,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Setelah server aktif, silakan buka peramban (browser) dan kunjungi alamat **`http://127.0.0.1:8000/`**.
+Setelah server aktif, silakan buka peramban (browser) dan kunjungi alamat **`[http://127.0.0.1:8000/](https://hitunggkos.vercel.app/)`**.
 
 ---
 
