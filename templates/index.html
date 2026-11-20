@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HitungKos — Estimasi Tarif & Analisis Kos Madiun</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --powder-blue: #A5A6D5;
+            --powder-blue-soft: #F0F0F8;
+            --burgundy: #343B70;
+            --burgundy-dark: #343B70;
+            --burgundy-soft: #ECECF5;
+            --dusty-rose: #626BA8;
+            --dusty-rose-soft: #EEF0F8;
+            --bg-page: #F4F5FA;
+            --bg-card: #FFFFFF;
+            --text-main: #252943;
+            --text-muted: #747B96;
+            --border: #E2E5EF;
+            --danger: #9B2C2C;
+            --danger-soft: #FFF5F5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+        }
+
+        .nav-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--burgundy);
+            letter-spacing: -0.3px;
+        }
+
+        .brand-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .nav-pills {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--powder-blue-soft);
+            padding: 5px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .nav-pills a, .nav-btn-ai {
+            text-decoration: none;
+            color: var(--burgundy);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-pills a:hover, .nav-btn-ai:hover {
+            background: rgba(165, 166, 213, 0.45);
+        }
+
+        .nav-pills a.active {
+            background: var(--burgundy);
+            color: #FFFFFF;
+        }
+
+        .nav-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--dusty-rose-soft);
+            color: var(--burgundy);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--dusty-rose);
+        }
+
+        .dot-live {
+            width: 8px;
+            height: 8px;
+            background: var(--dusty-rose);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Dropdown API AI */
+        .ai-dropdown-wrapper {
+            position: relative;
+        }
+
+        .ai-popover {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 44px;
+            width: 320px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 12px 32px rgba(41, 47, 94, 0.14);
+            z-index: 200;
+        }
+
+        .ai-popover.open {
+            display: block;
+        }
+
+        .ai-popover h4 {
+            font-size: 0.98rem;
+            margin-bottom: 4px;
+            color: var(--burgundy);
+        }
+
+        .ai-popover p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 24px 16px 48px;
+        }
+
+        /* Hero Banner */
+        .hero {
+            background: linear-gradient(125deg, #ECECF5 0%, #F8F8FC 58%, #E6E7F3 100%);
+            color: var(--text-main);
+            border: 1px solid #D9DBEC;
+            border-radius: 24px;
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1.25fr 0.9fr;
+            gap: 36px;
+            align-items: center;
+            margin-bottom: 24px;
+            box-shadow: 0 14px 34px rgba(52, 59, 112, 0.10);
+            scroll-margin-top: 84px;
+        }
+
+        @media (max-width: 840px) {
+            .hero {
+                grid-template-columns: 1fr;
+                padding: 26px;
+            }
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #FFFFFF;
+            color: var(--burgundy);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 999px;
+            border: 1px solid #D9DBEC;
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            font-size: 2.15rem;
+            line-height: 1.2;
+            margin-bottom: 14px;
+            font-weight: 800;
+            color: var(--burgundy-dark);
+        }
+
+        .hero p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero-primary {
+            background: var(--burgundy);
+            color: #FFFFFF;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.92rem;
+            padding: 11px 20px;
+            border-radius: 10px;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-hero-primary:hover {
+            background: #252B5B;
+            transform: translateY(-1px);
+        }
+
+        .btn-hero-secondary {
+            background: #FFFFFF;
+            color: var(--burgundy);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.92rem;
+            padding: 11px 20px;
+            border-radius: 10px;
+            border: 1px solid #D9DBEC;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-hero-secondary:hover {
+            background: var(--powder-blue-soft);
+            transform: translateY(-1px);
+        }
+
+        .hero-stat-box {
+            background: linear-gradient(145deg, #343B70, #252B5B);
+            border: 1px solid rgba(52, 59, 112, 0.2);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 12px 24px rgba(37, 43, 91, 0.18);
+        }
+
+        .hero-stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .hero-stat-label {
+            font-size: 0.78rem;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--powder-blue);
+            font-weight: 700;
+        }
+
+        .pill-patokan {
+            background: rgba(98, 107, 168, 0.28);
+            color: #FFFFFF;
+            border: 1px solid rgba(98, 107, 168, 0.5);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+
+        .hero-price-big {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 4px 0;
+            color: #FFFFFF;
+        }
+
+        .hero-price-sub {
+            font-size: 0.82rem;
+            color: #E2E5EF;
+            margin-bottom: 16px;
+        }
+
+        .hero-minmax {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .minmax-item {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(165, 166, 213, 0.18);
+            padding: 10px 12px;
+            border-radius: 10px;
+        }
+
+        .minmax-item span {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--powder-blue);
+        }
+
+        .minmax-item strong {
+            font-size: 0.98rem;
+            color: #FFFFFF;
+        }
+
+        /* 4 KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 26px;
+        }
+
+        @media (max-width: 840px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .kpi-card {
+            background: linear-gradient(160deg, #FFFFFF, #FAFAFD);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--powder-blue);
+            border-radius: 12px 18px 18px 12px;
+            padding: 18px 20px;
+            box-shadow: 0 6px 16px rgba(52, 59, 112, 0.05);
+        }
+
+        .kpi-card:nth-child(2) {
+            border-left-color: var(--dusty-rose);
+        }
+
+        .kpi-card:nth-child(3) {
+            border-left-color: var(--burgundy);
+        }
+
+        .kpi-card:nth-child(4) {
+            border-left-color: #A5A6D5;
+        }
+
+        .kpi-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--burgundy);
+            margin: 4px 0 2px;
+        }
+
+        .kpi-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Section Cards */
+        .section-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 26px;
+            margin-bottom: 24px;
+            scroll-margin-top: 84px;
+        }
+
+        #kalkulator {
+            background: linear-gradient(145deg, #F0F0F8, #FFFFFF 72%);
+            border-color: #D9DBEC;
+            box-shadow: 0 12px 28px rgba(52, 59, 112, 0.08);
+        }
+
+        #kalkulator .section-header {
+            border-left: 4px solid var(--dusty-rose);
+            padding-left: 16px;
+            margin-bottom: 22px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .section-eyebrow {
+            display: inline-flex;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--dusty-rose);
+            background: var(--burgundy-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            margin-bottom: 5px;
+        }
+
+        .section-header h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .section-header p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        /* Calculator Grid */
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 0.92fr 1.08fr;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        @media (max-width: 840px) {
+            .calc-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .calc-form-panel {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 6px 18px rgba(52, 59, 112, 0.05);
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background: var(--bg-card);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--powder-blue);
+            box-shadow: 0 0 0 3px rgba(165, 166, 213, 0.35);
+        }
+
+        .form-hint {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: block;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--burgundy);
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--burgundy-dark);
+        }
+
+        .btn-danger-sm {
+            background: var(--powder-blue-soft);
+            color: var(--burgundy);
+            border: 1px solid var(--powder-blue);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-danger-sm:hover {
+            background: var(--powder-blue);
+            color: var(--text-main);
+        }
+
+        /* Result & AI Panel */
+        .result-panel {
+            background: linear-gradient(160deg, #ECECF5, #F8F8FC);
+            border: 1px solid #D9DBEC;
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .result-price-card {
+            background: linear-gradient(135deg, var(--burgundy-soft), var(--powder-blue-soft));
+            border: 1.5px solid var(--powder-blue);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .result-price-card .lbl {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--burgundy);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .result-price-card .val {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--burgundy);
+            margin: 4px 0;
+        }
+
+        .result-meta {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .badge-segmen {
+            display: inline-block;
+            background: var(--burgundy);
+            color: #FFFFFF;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 999px;
+        }
+
+        .ai-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--dusty-rose);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+
+        .ai-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            gap: 8px;
+        }
+
+        .ai-box-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--burgundy);
+        }
+
+        .ai-provider-pill {
+            font-size: 0.74rem;
+            background: var(--powder-blue-soft);
+            color: var(--burgundy);
+            border: 1px solid var(--powder-blue);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        .ai-box p {
+            font-size: 0.88rem;
+            color: var(--text-main);
+        }
+
+        .alert-error {
+            background: var(--danger-soft);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            margin-bottom: 14px;
+        }
+
+        .alert-toast {
+            background: var(--powder-blue-soft);
+            border: 1px solid var(--powder-blue);
+            color: var(--burgundy);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 840px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .chart-card h3 {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        /* Tables */
+        .table-wrap {
+            overflow-x: auto;
+            max-height: 360px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg-card);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            background: var(--bg-card);
+        }
+
+        th, td {
+            padding: 11px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr {
+            background: var(--bg-card);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-page);
+        }
+
+        th {
+            background: var(--powder-blue-soft);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            color: var(--burgundy);
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .pill-ac {
+            background: var(--powder-blue-soft);
+            color: var(--text-main);
+            border: 1px solid var(--powder-blue);
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+
+        .pill-nonac {
+            background: var(--dusty-rose-soft);
+            color: var(--burgundy);
+            border: 1px solid var(--dusty-rose);
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+
+        .model-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .model-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .info-box h4 {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            color: var(--burgundy);
+        }
+
+        .info-box ul {
+            padding-left: 18px;
+            font-size: 0.86rem;
+            color: var(--text-main);
+        }
+
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            padding-top: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-inner">
+            <div class="brand">
+                <span class="brand-title">HitungKos</span>
+                <span class="brand-sub">Naufal Adriananta Halim (253307058)</span>
+            </div>
+
+            <div class="nav-pills">
+                <a href="#beranda" class="active">Beranda</a>
+                <a href="#kalkulator">Kalkulator</a>
+                <a href="#grafik">Grafik Tarif</a>
+                <a href="#riwayat">Riwayat</a>
+                <a href="#infomodel">Info Model</a>
+
+                <div class="ai-dropdown-wrapper">
+                    <button type="button" class="nav-btn-ai" id="btnToggleAi">API AI ▾</button>
+                    <div class="ai-popover" id="aiPopover">
+                        <h4>Pengaturan API AI</h4>
+                        <p>Pilih provider analisis kewajaran tarif kos (Lokal Bawaan tanpa key, atau Groq / Gemini).</p>
+                        <form method="POST" action="#kalkulator" class="keep-scroll-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="aksi" value="simpan_ai">
+
+                            <div class="form-group">
+                                <label for="ai_provider">Provider AI</label>
+                                <select id="ai_provider" name="ai_provider" class="form-control">
+                                    <option value="lokal" {% if ai_provider == "lokal" %}selected{% endif %}>Analisis Lokal Bawaan (Otomatis)</option>
+                                    <option value="groq" {% if ai_provider == "groq" %}selected{% endif %}>Groq (Llama 3.1)</option>
+                                    <option value="gemini" {% if ai_provider == "gemini" %}selected{% endif %}>Google Gemini (2.5 Flash)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ai_api_key">API Key (Opsional jika Lokal)</label>
+                                <input
+                                    type="password"
+                                    id="ai_api_key"
+                                    name="ai_api_key"
+                                    class="form-control"
+                                    placeholder="{% if has_api_key %}Key sesi tersimpan (isi untuk ganti){% else %}Masukkan API key Groq / Gemini{% endif %}"
+                                >
+                                <small class="form-hint">Key disimpan sementara di session browser lokal dan otomatis hilang saat browser ditutup.</small>
+                            </div>
+
+                            <button type="submit" class="btn-primary">Simpan Pengaturan AI</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-badge">
+                <span class="dot-live"></span>
+                Regresi + {{ ai_provider|upper }} AI
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        {% if pesan_ai_setting %}
+            <div class="alert-toast">{{ pesan_ai_setting }}</div>
+        {% endif %}
+
+        <!-- Hero Section -->
+        <section id="beranda" class="hero">
+            <div>
+                <span class="hero-tag">• Kota Madiun • {{ info_model.jumlah_data }} Sampel Kos Terdata</span>
+                <h1>Ukur kewajaran tarif kos sebelum kamu deal sewa.</h1>
+                <p>Masukkan jarak kamar ke kampus, rating penghuni, dan ketersediaan AC. HitungKos menghitung estimasi harga bulanan memakai model Regresi Linear lalu memberi pertimbangan singkat lewat Analisis Lokal maupun API AI pilihanmu.</p>
+                <div class="hero-actions">
+                    <a href="#kalkulator" class="btn-hero-primary">Mulai Hitung Tarif →</a>
+                    <a href="#grafik" class="btn-hero-secondary">Lihat Grafik Pasar</a>
+                </div>
+            </div>
+
+            <div class="hero-stat-box">
+                <div class="hero-stat-top">
+                    <span class="hero-stat-label">Rata-Rata Tarif Umum</span>
+                    <span class="pill-patokan">Patokan</span>
+                </div>
+                <div class="hero-price-big">{{ info_model.rata_harga_rupiah }}</div>
+                <div class="hero-price-sub">per bulan di area kampus Madiun</div>
+
+                <div class="hero-minmax">
+                    <div class="minmax-item">
+                        <span>Tarif Terendah</span>
+                        <strong>{{ info_model.tarif_min_rupiah }}</strong>
+                    </div>
+                    <div class="minmax-item">
+                        <span>Tarif Tertinggi</span>
+                        <strong>{{ info_model.tarif_max_rupiah }}</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4 KPI Summary Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">Kos Dianalisis</div>
+                <div class="kpi-value">{{ info_model.jumlah_data }} Kos</div>
+                <div class="kpi-desc">Sampel sekitar kampus Madiun</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Rata-Rata Sewa</div>
+                <div class="kpi-value">{{ info_model.rata_harga_rupiah }}</div>
+                <div class="kpi-desc">Acuan bulanan dataset</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Selisih Fasilitas</div>
+                <div class="kpi-value">AC vs Non-AC</div>
+                <div class="kpi-desc">Terlihat interaktif pada grafik</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Sudah Dicek</div>
+                <div class="kpi-value">{{ total_dicek }}x</div>
+                <div class="kpi-desc">Tersimpan di database SQLite</div>
+            </div>
+        </div>
+
+        <!-- Section 1: Kalkulator & Analisis AI -->
+        <section id="kalkulator" class="section-block">
+            <div class="section-header">
+                <div>
+                    <div class="section-eyebrow">01 • Kalkulator Tarif Kos</div>
+                    <h2>Perkirakan Biaya Kos Sesuai Kebutuhanmu</h2>
+                    <p>Masukkan detail kos untuk melihat perkiraan harga bulanan dan mendapatkan analisis singkat.</p>
+                </div>
+            </div>
+
+            <div class="calc-grid">
+                <div class="calc-form-panel">
+                    <form method="POST" action="#kalkulator" class="keep-scroll-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="aksi" value="hitung">
+
+                        <div class="form-group">
+                            <label for="jarak_km">Jarak ke Kampus (km)</label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                min="0.1"
+                                max="25.0"
+                                id="jarak_km"
+                                name="jarak_km"
+                                class="form-control"
+                                value="{{ form_data.jarak_km }}"
+                                required
+                            >
+                            <small class="form-hint">Rentang normal dataset 0,6 – 5,0 km (mendukung uji batas hingga 25 km).</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ac">Fasilitas AC</label>
+                            <select id="ac" name="ac" class="form-control" required>
+                                <option value="ya" {% if form_data.ac == "ya" %}selected{% endif %}>Ya (Tersedia AC)</option>
+                                <option value="tidak" {% if form_data.ac == "tidak" %}selected{% endif %}>Tidak (Non-AC)</option>
+                            </select>
+                            <small class="form-hint">Ketersediaan pendingin ruangan di kamar kos.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rating">Rating Kos (Skala 1,0 – 5,0)</label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                min="1.0"
+                                max="5.0"
+                                id="rating"
+                                name="rating"
+                                class="form-control"
+                                value="{{ form_data.rating }}"
+                                required
+                            >
+                            <small class="form-hint">Penilaian kenyamanan & kebersihan kamar (contoh: 4.2).</small>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Lihat Estimasi & Analisis</button>
+                    </form>
+                </div>
+
+                <div class="result-panel">
+                    {% if pesan_error %}
+                        <div class="alert-error">
+                            <strong>Input Tidak Valid:</strong> {{ pesan_error }}
+                        </div>
+                    {% endif %}
+
+                    {% if hasil_prediksi %}
+                        <div class="result-price-card">
+                            <div class="lbl">Estimasi Tarif Sewa / Bulan</div>
+                            <div class="val">{{ hasil_prediksi.harga_rupiah }}</div>
+                            <div class="result-meta">
+                                ({{ hasil_prediksi.jarak_km }} km • {{ hasil_prediksi.ac_teks }} • Rating {{ hasil_prediksi.rating }}/5,0)
+                            </div>
+                            <span class="badge-segmen">Segmen Pasar: {{ hasil_prediksi.kategori }}</span>
+                        </div>
+
+                        <div class="ai-box">
+                            <div class="ai-box-header">
+                                <span class="ai-box-title">Ulasan Kewajaran Tarif</span>
+                                <span class="ai-provider-pill">{{ hasil_prediksi.provider_ai }}</span>
+                            </div>
+                            <p>{{ hasil_prediksi.analisis_ai }}</p>
+                        </div>
+                    {% else %}
+                        <div style="text-align: center; padding: 38px 16px; color: var(--text-muted);">
+                            <p style="font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Siap Menghitung Estimasi Kos</p>
+                            <p style="font-size: 0.88rem;">Isi jarak ke kampus, fasilitas AC, dan rating di sebelah kiri, lalu klik <strong>Hitung & Analisis Tarif Kos</strong>. Kamu juga bisa memilih provider AI lewat menu <strong>API AI ▾</strong> di atas.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Grafik Tarif Interaktif Web (Chart.js) -->
+        <section id="grafik" class="section-block">
+            <div class="section-header">
+                <div>
+                    <div class="section-eyebrow">02 • Eksplorasi Grafik Tarif</div>
+                    <h2>Pola Harga Kos dan Perbandingan Fasilitas</h2>
+                    <p>Amati hubungan jarak kos ke kampus dengan tarifnya, lalu bandingkan rata-rata harga kos ber-AC dan non-AC.</p>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Jarak Kos ke Kampus dan Tarif Sewa</h3>
+                    <canvas id="scatterTarifChart" height="220"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Rata-Rata Tarif: Non-AC vs Ber-AC</h3>
+                    <canvas id="barAcChart" height="220"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Riwayat Pencarian / Analisa -->
+        <section id="riwayat" class="section-block">
+            <div class="section-header">
+                <div>
+                    <div class="section-eyebrow">03 • Rekap Aktivitas Tarif</div>
+                    <h2>Riwayat Estimasi dan Analisis Kos</h2>
+                    <p>Semua hasil estimasi yang pernah dibuat tersimpan di basis data lokal.</p>
+                </div>
+
+                {% if riwayat_list %}
+                    <form method="POST" action="#riwayat" class="keep-scroll-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="aksi" value="hapus_riwayat">
+                        <button type="submit" class="btn-danger-sm">Bersihkan Riwayat</button>
+                    </form>
+                {% endif %}
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Waktu</th>
+                            <th>Jarak</th>
+                            <th>Rating</th>
+                            <th>Fasilitas</th>
+                            <th>Hasil Estimasi</th>
+                            <th>Segmen</th>
+                            <th>Engine Analisis</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in riwayat_list %}
+                            <tr>
+                                <td>{{ item.waktu }}</td>
+                                <td><strong>{{ item.jarak_km }} km</strong></td>
+                                <td>{{ item.rating }} / 5,0</td>
+                                <td>
+                                    {% if item.ac == "Ber-AC" %}
+                                        <span class="pill-ac">Ber-AC</span>
+                                    {% else %}
+                                        <span class="pill-nonac">Non-AC</span>
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ item.estimasi_harga }}</strong></td>
+                                <td>{{ item.kategori }}</td>
+                                <td style="font-size: 0.8rem; color: var(--text-muted);">{{ item.provider_ai }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                                    Belum ada riwayat kalkulasi. Coba hitung estimasi tarif kos pada bagian Kalkulator di atas.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 4: Info Model & Data Referensi -->
+        <section id="infomodel" class="section-block">
+            <div class="section-header">
+                <div>
+                    <div class="section-eyebrow">04 • Sistem Prediksi & Sumber Data</div>
+                    <h2>Cara Kerja Model dan Data Acuan Madiun</h2>
+                    <p>Kenali algoritma prediksi, hasil pengujian, dan data yang digunakan sebagai acuan.</p>
+                </div>
+            </div>
+
+            <div class="model-grid">
+                <div class="info-box">
+                    <h4>Teknologi & Algoritma yang Digunakan</h4>
+                    <ul>
+                        <li><strong>Model Utama:</strong> {{ info_model.nama_model }} (Scikit-Learn) yang dibekukan ke <code>model_kos.joblib</code>.</li>
+                        <li><strong>Fitur Input (X):</strong> Jarak ke kampus (<code>jarak_km</code>), penilaian penghuni (<code>rating</code>), dan fasilitas AC terenkode biner (<code>ac_num</code>).</li>
+                        <li><strong>Backend & Database:</strong> Python Django 6 + SQLite (<code>RiwayatPrediksi</code>) untuk penyimpanan riwayat pencarian.</li>
+                        <li><strong>Layer Analisis AI:</strong> Engine Analisis Lokal Bawaan (berbasis statistik pasar Madiun) serta integrasi opsional API <strong>Groq (Llama 3.1)</strong> dan <strong>Google Gemini (2.5 Flash)</strong>.</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Evaluasi Perbandingan Model (80% Latih : 20% Uji)</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Algoritma</th>
+                                <th>MAE Uji (Rb Rp)</th>
+                                <th>RMSE Uji (Rb Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Linear Regression (Aktif)</strong></td>
+                                <td>{{ info_model.perbandingan.linear_regression.mae_test }}</td>
+                                <td>{{ info_model.perbandingan.linear_regression.rmse_test }}</td>
+                            </tr>
+                            <tr>
+                                <td>Decision Tree (max_depth=3)</td>
+                                <td>{{ info_model.perbandingan.decision_tree.mae_test }}</td>
+                                <td>{{ info_model.perbandingan.decision_tree.rmse_test }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1rem; margin-bottom: 10px; color: var(--text-main);">Sampel Data Kos Madiun untuk Prediksi (30 Observasi)</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Kos</th>
+                            <th>Jarak ke Kampus</th>
+                            <th>Rating</th>
+                            <th>Fasilitas</th>
+                            <th>Tarif / Bulan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in dataset_list %}
+                            <tr>
+                                <td>{{ row.no }}</td>
+                                <td><strong>{{ row.nama }}</strong></td>
+                                <td>{{ row.jarak_km }} km</td>
+                                <td>{{ row.rating }} / 5,0</td>
+                                <td>
+                                    {% if row.ac == "ya" %}
+                                        <span class="pill-ac">Ber-AC</span>
+                                    {% else %}
+                                        <span class="pill-nonac">Non-AC</span>
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ row.harga_rupiah }}</strong></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer>
+            HitungKos V2.0 • Naufal Adriananta Halim (NIM 253307058) • Mini Proyek Sistem Cerdas Pertemuan 14
+        </footer>
+    </div>
+
+    <script>
+        // Navigasi navbar: gulir ke section yang dipilih dan perbarui menu aktif.
+        const navLinks = Array.from(document.querySelectorAll(".nav-pills a[href^='#']"));
+
+        function pindahKeSection(link) {
+            const targetId = link.getAttribute("href");
+            const target = document.querySelector(targetId);
+            if (!target) return;
+
+            navLinks.forEach(function (navLink) {
+                navLink.classList.toggle("active", navLink === link);
+            });
+
+            target.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, "", targetId);
+            }
+        }
+
+        navLinks.forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                event.preventDefault();
+                pindahKeSection(link);
+            });
+        });
+
+        // Tetap sinkronkan menu aktif saat pengguna menggulir sendiri.
+        const sectionTargets = navLinks
+            .map(function (link) {
+                return document.querySelector(link.getAttribute("href"));
+            })
+            .filter(Boolean);
+
+        if ("IntersectionObserver" in window) {
+            const navObserver = new IntersectionObserver(function (entries) {
+                const visibleEntry = entries
+                    .filter(function (entry) { return entry.isIntersecting; })
+                    .sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; })[0];
+
+                if (!visibleEntry) return;
+
+                navLinks.forEach(function (link) {
+                    link.classList.toggle(
+                        "active",
+                        link.getAttribute("href") === "#" + visibleEntry.target.id
+                    );
+                });
+            }, {
+                rootMargin: "-20% 0px -65% 0px",
+                threshold: [0, 0.15, 0.5]
+            });
+
+            sectionTargets.forEach(function (section) {
+                navObserver.observe(section);
+            });
+        }
+
+        // Simpan dan pulihkan posisi scroll agar tidak melompat ke atas saat submit form
+        document.querySelectorAll(".keep-scroll-form").forEach(function (form) {
+            form.addEventListener("submit", function () {
+                sessionStorage.setItem("hitungkos_scroll_y", window.scrollY);
+            });
+        });
+
+        // Toggle popover pengaturan API AI
+        const btnToggleAi = document.getElementById("btnToggleAi");
+        const aiPopover = document.getElementById("aiPopover");
+
+        btnToggleAi.addEventListener("click", function (e) {
+            e.stopPropagation();
+            aiPopover.classList.toggle("open");
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!aiPopover.contains(e.target) && e.target !== btnToggleAi) {
+                aiPopover.classList.remove("open");
+            }
+        });
+
+        // Render Grafik Interaktif Chart.js dari data kos_madiun.csv
+        const chartData = {{ chart_payload|safe }};
+
+        const acPoints = chartData.points
+            .filter(item => item.ac === "ya")
+            .map(item => ({ x: item.jarak_km, y: item.harga_ribu, nama: item.nama }));
+
+        const nonAcPoints = chartData.points
+            .filter(item => item.ac !== "ya")
+            .map(item => ({ x: item.jarak_km, y: item.harga_ribu, nama: item.nama }));
+
+        const ctxScatter = document.getElementById("scatterTarifChart").getContext("2d");
+        new Chart(ctxScatter, {
+            type: "scatter",
+            data: {
+                datasets: [
+                    {
+                        label: "Ber-AC (ya)",
+                        data: acPoints,
+                        backgroundColor: "#343B70",
+                        borderColor: "#343B70",
+                        borderWidth: 1,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: "Non-AC (tidak)",
+                        data: nonAcPoints,
+                        backgroundColor: "#626BA8",
+                        borderColor: "#343B70",
+                        borderWidth: 1,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: false,
+                plugins: {
+                    legend: {
+                        labels: { color: "#252943" }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const pt = ctx.raw;
+                                return `${pt.nama}: ${pt.x} km — Rp ${pt.y} rb/bln`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: "Jarak ke Kampus (km)", color: "#252943" },
+                        ticks: { color: "#747B96" },
+                        grid: { color: "#E2E5EF" }
+                    },
+                    y: {
+                        title: { display: true, text: "Tarif Sewa (Ribu Rp / Bulan)", color: "#252943" },
+                        ticks: { color: "#747B96" },
+                        grid: { color: "#E2E5EF" }
+                    }
+                }
+            }
+        });
+
+        const ctxBar = document.getElementById("barAcChart").getContext("2d");
+        new Chart(ctxBar, {
+            type: "bar",
+            data: {
+                labels: ["Non-AC (tidak)", "Ber-AC (ya)"],
+                datasets: [
+                    {
+                        label: "Rata-Rata Tarif (Ribu Rp / Bulan)",
+                        data: [chartData.rata_non_ac, chartData.rata_ac],
+                        backgroundColor: ["#626BA8", "#343B70"],
+                        borderColor: ["#626BA8", "#343B70"],
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        barPercentage: 0.48
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return `Rata-rata: Rp ${ctx.raw} rb/bulan`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: "#252943" },
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 1400,
+                        title: { display: true, text: "Ribu Rp / Bulan", color: "#252943" },
+                        ticks: { color: "#747B96" },
+                        grid: { color: "#E2E5EF" }
+                    }
+                }
+            }
+        });
+
+        // Kembalikan posisi scroll setelah Chart.js selesai dirender
+        window.addEventListener("load", function () {
+            const savedScrollY = sessionStorage.getItem("hitungkos_scroll_y");
+            if (savedScrollY !== null) {
+                window.scrollTo({ top: parseInt(savedScrollY, 10), behavior: "instant" });
+                sessionStorage.removeItem("hitungkos_scroll_y");
+            }
+        });
+    </script>
+</body>
+</html>
